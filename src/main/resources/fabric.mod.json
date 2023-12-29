@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "id": "opc",
+    "id": "opc_dc",
     "version": "${version}",
     "name": "Offline Player Cache: Directors Cut",
     "description": "An API to cache specific player data when they are offline.",
@@ -14,7 +14,7 @@
         "sources": "https://github.com/CleverNucleus/Offline-Player-Cache"
     },
     "license": "MIT",
-    "icon": "assets/opc/icon.png",
+    "icon": "assets/opc_dc/icon.png",
     "environment": "*",
     "entrypoints": {
         "main": [
@@ -22,7 +22,7 @@
         ]
     },
     "mixins": [
-        "opc.mixins.json"
+        "opc_dc.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=0.14.9",

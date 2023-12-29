@@ -1,4 +1,4 @@
-package com.github.clevernucleus.opc.impl;
+package com.github.clevernucleus.opc_dc.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.github.clevernucleus.opc.api.CacheableValue;
+import com.github.clevernucleus.opc_dc.api.CacheableValue;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.authlib.GameProfile;

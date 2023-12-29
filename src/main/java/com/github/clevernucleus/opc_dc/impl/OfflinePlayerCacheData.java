@@ -1,4 +1,4 @@
-package com.github.clevernucleus.opc.impl;
+package com.github.clevernucleus.opc_dc.impl;
 
 public interface OfflinePlayerCacheData {
 	OfflinePlayerCacheImpl offlinePlayerCache();

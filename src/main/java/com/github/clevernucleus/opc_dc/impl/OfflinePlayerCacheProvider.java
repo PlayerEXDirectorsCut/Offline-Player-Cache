@@ -1,10 +1,10 @@
-package com.github.clevernucleus.opc.impl;
+package com.github.clevernucleus.opc_dc.impl;
 
 import java.util.Collection;
 import java.util.UUID;
 
-import com.github.clevernucleus.opc.api.CacheableValue;
-import com.github.clevernucleus.opc.api.OfflinePlayerCache;
+import com.github.clevernucleus.opc_dc.api.CacheableValue;
+import com.github.clevernucleus.opc_dc.api.OfflinePlayerCache;
 
 import net.minecraft.server.MinecraftServer;
 

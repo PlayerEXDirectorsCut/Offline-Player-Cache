@@ -1,9 +1,9 @@
-package com.github.clevernucleus.opc.impl;
+package com.github.clevernucleus.opc_dc.impl;
 
 import java.util.UUID;
 import java.util.function.Function;
 
-import com.github.clevernucleus.opc.api.CacheableValue;
+import com.github.clevernucleus.opc_dc.api.CacheableValue;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;

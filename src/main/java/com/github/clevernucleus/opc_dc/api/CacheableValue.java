@@ -1,4 +1,4 @@
-package com.github.clevernucleus.opc.api;
+package com.github.clevernucleus.opc_dc.api;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;

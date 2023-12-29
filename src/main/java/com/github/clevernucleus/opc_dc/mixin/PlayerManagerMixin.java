@@ -1,4 +1,4 @@
-package com.github.clevernucleus.opc.mixin;
+package com.github.clevernucleus.opc_dc.mixin;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.clevernucleus.opc.impl.OfflinePlayerCacheImpl;
+import com.github.clevernucleus.opc_dc.impl.OfflinePlayerCacheImpl;
 
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.MinecraftServer;

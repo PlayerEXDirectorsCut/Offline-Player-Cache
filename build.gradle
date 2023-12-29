@@ -61,7 +61,7 @@ modrinth {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     System.out.println("Enter a Modrinth token: ");
     token = br.readLine();
-    projectId = "kD9Vl1lR"
+    projectId = "oLPaySSb"
     versionNumber = "${project.mod_version}"
     versionName = "${project.mod_version}"
     versionType = "beta"

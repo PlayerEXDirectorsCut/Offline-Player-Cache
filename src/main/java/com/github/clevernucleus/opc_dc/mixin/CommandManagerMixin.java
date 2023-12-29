@@ -1,4 +1,4 @@
-package com.github.clevernucleus.opc.mixin;
+package com.github.clevernucleus.opc_dc.mixin;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.clevernucleus.opc.impl.OfflinePlayerCacheCommand;
+import com.github.clevernucleus.opc_dc.impl.OfflinePlayerCacheCommand;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.command.CommandRegistryAccess;

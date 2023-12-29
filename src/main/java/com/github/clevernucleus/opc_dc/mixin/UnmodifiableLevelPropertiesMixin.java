@@ -1,11 +1,11 @@
-package com.github.clevernucleus.opc.mixin;
+package com.github.clevernucleus.opc_dc.mixin;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.github.clevernucleus.opc.impl.OfflinePlayerCacheData;
-import com.github.clevernucleus.opc.impl.OfflinePlayerCacheImpl;
+import com.github.clevernucleus.opc_dc.impl.OfflinePlayerCacheData;
+import com.github.clevernucleus.opc_dc.impl.OfflinePlayerCacheImpl;
 
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.UnmodifiableLevelProperties;

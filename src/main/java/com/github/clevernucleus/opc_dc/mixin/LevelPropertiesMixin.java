@@ -1,4 +1,4 @@
-package com.github.clevernucleus.opc.mixin;
+package com.github.clevernucleus.opc_dc.mixin;
 
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.clevernucleus.opc.impl.OfflinePlayerCacheData;
-import com.github.clevernucleus.opc.impl.OfflinePlayerCacheImpl;
+import com.github.clevernucleus.opc_dc.impl.OfflinePlayerCacheData;
+import com.github.clevernucleus.opc_dc.impl.OfflinePlayerCacheImpl;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;

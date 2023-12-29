@@ -34,7 +34,7 @@ repositories {
 
 ```gradle
 dependencies {
-    modImplementation "maven.modrinth:offline-player-cache:<version>"
-    include "maven.modrinth:offline-player-cache:<version>"
+    modImplementation "maven.modrinth:modrinth:opc-directors-cut:<version>"
+    include "maven.modrinth:modrinth:opc-directors-cut:<version>"
 }
 ```

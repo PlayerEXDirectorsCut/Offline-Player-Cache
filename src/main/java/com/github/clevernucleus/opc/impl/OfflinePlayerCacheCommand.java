@@ -45,7 +45,7 @@ public final class OfflinePlayerCacheCommand {
 			CacheableValue<?> value = OfflinePlayerCacheImpl.getKey(identifier);
 			
 			if(value == null) {
-				ctx.getSource().sendFeedback((Text.literal(id + " -> null key")).formatted(Formatting.RED), false);
+				ctx.getSource().sendFeedback(() -> (Text.literal(id + " -> null key")).formatted(Formatting.RED), false);
 				return -1;
 			}
 			
@@ -53,7 +53,7 @@ public final class OfflinePlayerCacheCommand {
 			
 			return OfflinePlayerCacheImpl.ifPresent(server, -1, opc -> {
 				Object obj = (id instanceof String ? opc.get(server, (String)id, value) : (id instanceof UUID ? opc.get(server, (UUID)id, value) : null));
-				ctx.getSource().sendFeedback((Text.literal(id + " -> " + identifier + " = " + obj)).formatted(Formatting.GRAY), false);
+				ctx.getSource().sendFeedback(() -> (Text.literal(id + " -> " + identifier + " = " + obj)).formatted(Formatting.GRAY), false);
 				
 				if(obj instanceof Number) {
 					int number = (int)(Integer)obj;
@@ -72,7 +72,7 @@ public final class OfflinePlayerCacheCommand {
 			CacheableValue<?> value = OfflinePlayerCacheImpl.getKey(identifier);
 			
 			if(value == null) {
-				ctx.getSource().sendFeedback((Text.literal(id + " -> null key")).formatted(Formatting.RED), false);
+				ctx.getSource().sendFeedback(() -> (Text.literal(id + " -> null key")).formatted(Formatting.RED), false);
 				return -1;
 			}
 			
@@ -85,7 +85,7 @@ public final class OfflinePlayerCacheCommand {
 					opc.uncache((UUID)id, value);
 				}
 				
-				ctx.getSource().sendFeedback((Text.literal("-" + id + " -" + identifier)).formatted(Formatting.GRAY), false);
+				ctx.getSource().sendFeedback(() -> (Text.literal("-" + id + " -" + identifier)).formatted(Formatting.GRAY), false);
 				
 				return 1;
 			});
@@ -119,7 +119,7 @@ public final class OfflinePlayerCacheCommand {
 			return OfflinePlayerCacheImpl.ifPresent(server, -1, opc -> {
 				String player = StringArgumentType.getString(ctx, "name");
 				opc.uncache(player);
-				ctx.getSource().sendFeedback((Text.literal("-" + player + " -*")).formatted(Formatting.GRAY), false);
+				ctx.getSource().sendFeedback(() -> (Text.literal("-" + player + " -*")).formatted(Formatting.GRAY), false);
 				return 1;
 			});
 		}).build();
@@ -129,7 +129,7 @@ public final class OfflinePlayerCacheCommand {
 			return OfflinePlayerCacheImpl.ifPresent(server, -1, opc -> {
 				UUID player = UuidArgumentType.getUuid(ctx, "uuid");
 				opc.uncache(player);
-				ctx.getSource().sendFeedback((Text.literal("-" + player + " -*")).formatted(Formatting.GRAY), false);
+				ctx.getSource().sendFeedback(() -> (Text.literal("-" + player + " -*")).formatted(Formatting.GRAY), false);
 				return 1;
 			});
 		}).build();

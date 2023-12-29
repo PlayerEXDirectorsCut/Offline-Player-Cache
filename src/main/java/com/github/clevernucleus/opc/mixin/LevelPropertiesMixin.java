@@ -17,7 +17,7 @@ import com.mojang.serialization.Lifecycle;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
@@ -35,7 +35,7 @@ abstract class LevelPropertiesMixin implements OfflinePlayerCacheData {
 	}
 	
 	@Inject(method = "readProperties", at = @At("RETURN"))
-	private static void opc_readProperties(Dynamic<NbtElement> dynamic2, DataFixer dataFixer, int dataVersion, @Nullable NbtCompound playerData, LevelInfo levelInfo, SaveVersionInfo saveVersionInfo, GeneratorOptions generatorOptions, Lifecycle lifecycle, CallbackInfoReturnable<LevelProperties> info) {
+	private static void opc_readProperties(Dynamic<NbtElement> dynamic2, DataFixer dataFixer, int dataVersion, @Nullable NbtCompound playerData, LevelInfo levelInfo, SaveVersionInfo saveVersionInfo, LevelProperties.SpecialProperty specialProperty, GeneratorOptions generatorOptions, Lifecycle lifecycle, CallbackInfoReturnable<LevelProperties> info) {
 		LevelProperties levelProperties = info.getReturnValue();
 		dynamic2.get("OfflinePlayerCache").result().map(Dynamic::getValue).ifPresent(nbt -> ((OfflinePlayerCacheData)levelProperties).offlinePlayerCache().readFromNbt((NbtList)nbt));
 	}

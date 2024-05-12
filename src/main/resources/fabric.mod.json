@@ -17,13 +17,13 @@
 	"entrypoints": {
 		"main": [
 			{
-				"value": "com.bibireden.opc.Offlineplayercache",
+				"value": "com.bibireden.opc.OfflinePlayerCache",
 				"adapter": "kotlin"
 			}
 		],
 		"client": [
 			{
-				"value": "com.bibireden.opc.OfflineplayercacheClient",
+				"value": "com.bibireden.opc.OfflinePlayerCache",
 				"adapter": "kotlin"
 			}
 		]

@@ -1,6 +1,5 @@
 package com.bibireden.opc
 
-import com.bibireden.opc.components.ComponentInitializer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import org.slf4j.LoggerFactory

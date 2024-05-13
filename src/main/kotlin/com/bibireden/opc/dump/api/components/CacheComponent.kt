@@ -1,11 +1,12 @@
-package com.bibireden.opc.components
+package com.bibireden.opc.dump.api.components
 
 import com.bibireden.opc.OfflinePlayerCacheServer
-import com.bibireden.opc.api.CacheableValue
+import com.bibireden.opc.dump.api.CacheableValue
+import com.bibireden.opc.dump.api.OfflinePlayerCache
 import com.google.common.collect.HashBiMap
 import dev.onyxstudios.cca.api.v3.component.Component
-import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtList
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -14,7 +15,7 @@ import java.util.*
 
 typealias UserName = String
 
-class CacheComponent : Component, AutoSyncedComponent {
+class CacheComponent : Component {
     companion object {
         // All the registered key identifiers that map to a cached value (that are done through the register method).
         private val _keys = mutableMapOf<Identifier, CacheableValue<*>>()
@@ -23,8 +24,8 @@ class CacheComponent : Component, AutoSyncedComponent {
          * Verifies if the player is currently connected to the server and is cacheable/not cacheable.
          * I know, this seems dumb and redundant, because it is! But null safety is a real issue...
          */
-        private fun isPlayerValid(player: ServerPlayerEntity): Boolean {
-            return player.gameProfile != null && player.uuid != null && player.name.toString().isNotEmpty()
+        private fun isValidPlayer(player: ServerPlayerEntity?): Boolean {
+            return player?.gameProfile != null && player.uuid != null && player.name.toString().isNotEmpty()
         }
 
         /** Registers a `CacheableValue` into the keys of the component. */
@@ -42,13 +43,14 @@ class CacheComponent : Component, AutoSyncedComponent {
             const val USERNAME = "username"
         }
     }
+
     // The cache of data stored with the corresponding entity UUID, then stored with the cacheable value along with data
     private val _cache = mutableMapOf<UUID, MutableMap<CacheableValue<*>, *>>()
     private val _usernameToUUID = HashBiMap.create<UserName, UUID>()
 
     override fun readFromNbt(tag: NbtCompound) {
         val list = tag.get(OfflinePlayerCacheServer.MOD_ID)
-        if (list !is NbtList) return
+        if (list?.type != NbtElement.LIST_TYPE) return else list as NbtList
 
         this._cache.clear()
         this._usernameToUUID.clear()
@@ -67,7 +69,7 @@ class CacheComponent : Component, AutoSyncedComponent {
             for (id in entryKeys.keys) {
                 val key = _keys[Identifier(id)] ?: continue
                 val value = key.readFromNbt(entryKeys.getCompound(id))
-                data.put(key, value)
+                data[key] = value
             }
 
             this._cache[entryUuid] = data
@@ -118,7 +120,7 @@ class CacheComponent : Component, AutoSyncedComponent {
      * and stores it to the cache and the UUID -> PlayerName BiMap.
      * */
     fun cache(player: ServerPlayerEntity): Boolean {
-        if (!isPlayerValid(player)) return false
+        if (!isValidPlayer(player)) return false
         val value = mutableMapOf<CacheableValue<*>, Any?>()
         _keys.entries.forEach { entry -> value[entry.value] = entry.value.get(player) }
         this._cache[player.uuid] = value
@@ -128,7 +130,7 @@ class CacheComponent : Component, AutoSyncedComponent {
 
     /** Un-caches a `ServerPlayerEntity`. */
     fun unCache(player: ServerPlayerEntity): Boolean {
-        if (!isPlayerValid(player)) return false
+        if (!isValidPlayer(player)) return false
         this._cache.remove(player.uuid)
         this._usernameToUUID.inverse().remove(player.uuid)
         return true
@@ -139,15 +141,12 @@ class CacheComponent : Component, AutoSyncedComponent {
      * @param uuid
      * @param key
      * @return Type of generic passed in or null
+     *
      */
-    private inline fun <reified V>_getFromCache(uuid: UUID, key: CacheableValue<V>): V?  {
+    @Suppress("UNCHECKED_CAST") // Not a big fan of this, but theoretically it should always work
+    private fun <V>getFromCache(uuid: UUID, key: CacheableValue<V>): V?  {
         val value: Map<CacheableValue<*>, *> = this._cache[uuid] ?: return null
-
-        val data = value[key]
-
-        if (data !is V) return null
-
-        return data
+        return value[key] as? V
     }
 
     /**
@@ -157,31 +156,34 @@ class CacheComponent : Component, AutoSyncedComponent {
      * @param key
      * @return Type of generic passed in or null
      */
-    private inline fun <reified V> _get(server: MinecraftServer, uuid: UUID, key: CacheableValue<V>): V? {
-        val player : ServerPlayerEntity = server.playerManager.getPlayer(uuid) ?: return null
-        return this._getFromCache(uuid, key)
+    fun <V> get(server: MinecraftServer, uuid: UUID, key: CacheableValue<V>): V? {
+        val player : ServerPlayerEntity = server.playerManager.getPlayer(uuid) ?: return this.getFromCache(uuid, key)
+        return key.get(player)
     }
 
     /**
      * Gets data from player if it exists, if not gets from cache. Returns null if data exists nowhere
      * @param server
-     * @param username
+     * @param name
      * @param key
      * @return Type of generic passed in or null
      */
-    private inline fun <reified V> get(server: MinecraftServer, username: String, key: CacheableValue<V>): V? {
-        server.playerManager.getPlayer(username) ?: return null
-        val uuid: UUID = this._usernameToUUID[username] ?: return null
-
-        return this._getFromCache(uuid, key)
+    fun <V> get(server: MinecraftServer, name: String, key: CacheableValue<V>): V? {
+        val player = server.playerManager.getPlayer(name)
+        if (player == null) {
+            val uuid: UUID = this._usernameToUUID[name] ?: return null
+            return this.getFromCache(uuid, key)
+        }
+        return key.get(player)
     }
 
+
     fun playerIds(server: MinecraftServer): Collection<UUID> = server.playerManager.playerList
-        .filter { isPlayerValid(it) }
+        .filter { isValidPlayer(it) }
         .map { it.uuid }
 
     fun playerNames(server: MinecraftServer): Collection<String> = server.playerManager.playerList
-        .filter { isPlayerValid(it) }
+        .filter { isValidPlayer(it) }
         .map { it.name.toString() }
 
     fun isPlayerCached(uuid: UUID): Boolean = this._cache.containsKey(uuid)

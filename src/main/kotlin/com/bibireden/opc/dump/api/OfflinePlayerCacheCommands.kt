@@ -1,6 +1,6 @@
-
-import com.bibireden.opc.api.OfflinePlayerCache
-import com.bibireden.opc.components.CacheComponent
+package com.bibireden.opc.dump.api
+import com.bibireden.opc.dump.api.components.CacheComponent
+import com.bibireden.opc.ComponentInitializer
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
@@ -24,19 +24,18 @@ object OfflinePlayerCacheCommands {
         CommandSource.suggestIdentifiers(CacheComponent.keys(), builder)
     }
     private val suggestionNames = SuggestionProvider<ServerCommandSource> { ctx, builder ->
-        val cache = OfflinePlayerCache.getCache(ctx.source.server) ?: return@SuggestionProvider builder.buildFuture();
-        cache.playerNames(ctx.source.server).forEach(builder::suggest)
+        val cache = OfflinePlayerCache.getCache(ctx.source.server)
+        cache.playerNames().forEach(builder::suggest)
         return@SuggestionProvider builder.buildFuture()
     }
     private val suggestionUUIDs = SuggestionProvider<ServerCommandSource> { ctx, builder ->
-        val cache = OfflinePlayerCache.getCache(ctx.source.server) ?: return@SuggestionProvider builder.buildFuture()
-        cache.playerIds(ctx.source.server).forEach { id -> builder.suggest(id.toString()) }
+        OfflinePlayerCache.getCache(ctx.source.server).playerIds().forEach { id -> builder.suggest(id.toString()) }
         return@SuggestionProvider builder.buildFuture()
     }
 
     private fun <T>nullKeyMessage(id: T): () -> MutableText = { Text.literal("$id -> <null_key>").formatted(Formatting.RED) }
 
-    private fun playerIDMessage(cache: CacheComponent, either: Either<String, UUID>?, text: () -> MutableText): () -> MutableText = {
+    private fun playerIDMessage(cache: OfflinePlayerCache, either: Either<String, UUID>?, text: () -> MutableText): () -> MutableText = {
         var formattedID = "<invalid_id>"
         either?.ifLeft { name ->
             formattedID = "UUID: ${cache.getPlayerUUID(name)}\n" + "Name: $name"
@@ -60,13 +59,13 @@ object OfflinePlayerCacheCommands {
 
             val server = ctx.source.server
 
-            val cache = OfflinePlayerCache.getCache(server) ?: return@executes -1;
+            val cache = OfflinePlayerCache.getCache(server)
 
             val uuidOrString: Either<String, UUID>? = if (id is String) Either.left(id) else { if (id is UUID) Either.right(id) else null }
             var fetchedValue: Any? = null
 
-            uuidOrString?.ifLeft { fetchedValue = cache.get(server, id as String, value) }
-            uuidOrString?.ifRight { fetchedValue = cache.get(server, id as UUID, value) }
+            uuidOrString?.ifLeft { fetchedValue = cache.get(id as String, value) }
+            uuidOrString?.ifRight { fetchedValue = cache.get(id as UUID, value) }
 
             ctx.source.sendFeedback(
                 playerIDMessage(cache, uuidOrString) { Text.literal("[$identifier] is ($fetchedValue)").formatted(Formatting.WHITE) },
@@ -92,7 +91,7 @@ object OfflinePlayerCacheCommands {
 
             val server = ctx.source.server
 
-            val cache = OfflinePlayerCache.getCache(server) ?: return@executes -1;
+            val cache = ComponentInitializer.useCacheComponent(server) ?: return@executes -1;
             if (id is String) cache.unCache(id as String)
             else if (id is UUID) cache.unCache(id as UUID)
 
@@ -127,9 +126,9 @@ object OfflinePlayerCacheCommands {
         val nameNode = CommandManager.literal("name").build()
         val uuidNode = CommandManager.literal("uuid").build()
 
-        val nameArgNode = CommandManager.argument("name", StringArgumentType.string()).suggests(suggestionNames).executes {ctx ->
+        val nameArgNode = CommandManager.argument("name", StringArgumentType.string()).suggests(suggestionNames).executes { ctx ->
             val server = ctx.source.server
-            val cache = OfflinePlayerCache.getCache(server) ?: return@executes -1;
+            val cache: OfflinePlayerCache = OfflinePlayerCache.getCache(server) ?: return@executes -1;
             val playerString = StringArgumentType.getString(ctx, "name")
             cache.unCache(playerString)
             ctx.source.sendFeedback({ Text.literal("-$playerString -*").formatted(Formatting.GRAY)}, false)

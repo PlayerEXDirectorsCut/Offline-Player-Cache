@@ -2,30 +2,36 @@
 	"schemaVersion": 1,
 	"id": "offline-player-cache",
 	"version": "${version}",
-	"name": "offline-player-cache",
+	"name": "Offline Player Cache: Directors Cut",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
-		"Me!"
+		"bibi-reden",
+		"DataEncoded",
+		"pokesmells",
+		"clevernucleus (original author)"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/offline-player-cache/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			{
-				"value": "com.bibireden.opc.OfflinePlayerCache",
+				"value": "com.bibireden.opc.OfflinePlayerCacheServer",
 				"adapter": "kotlin"
 			}
 		],
 		"client": [
 			{
-				"value": "com.bibireden.opc.OfflinePlayerCache",
+				"value": "com.bibireden.opc.OfflinePlayerCacheClient",
 				"adapter": "kotlin"
 			}
+		],
+		"cardinal-components": [
+			"com.bibireden.opc.components.ComponentInitializer"
 		]
 	},
 	"mixins": [
@@ -42,7 +48,9 @@
 		"fabric-api": "*",
 		"fabric-language-kotlin": ">=1.9.24"
 	},
-	"suggests": {
-		"another-mod": "*"
+	"custom": {
+		"cardinal-components": [
+			"offline-player-cache:values"
+		]
 	}
 }

@@ -27,5 +27,12 @@
     "minecraft": "~${minecraft_version}",
     "java": ">=17",
     "fabric-language-kotlin": ">=${fabric_kotlin_version}"
+  },
+
+  "custom": {
+    "mc-publish": {
+      "modrinth": "SN6KkKel",
+      "loaders": ["fabric", "quilt"]
+    }
   }
 }

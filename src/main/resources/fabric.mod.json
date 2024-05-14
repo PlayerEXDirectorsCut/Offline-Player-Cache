@@ -18,28 +18,10 @@
 	"icon": "assets/offline-player-cache/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
-			{
-				"value": "com.bibireden.opc.OfflinePlayerCacheServer",
-				"adapter": "kotlin"
-			}
-		],
-		"client": [
-			{
-				"value": "com.bibireden.opc.OfflinePlayerCacheClient",
-				"adapter": "kotlin"
-			}
-		],
-		"cardinal-components": [
-			"com.bibireden.opc.ComponentInitializer"
-		]
+		"main": []
 	},
 	"mixins": [
-		"offline-player-cache.mixins.json",
-		{
-			"config": "offline-player-cache.client.mixins.json",
-			"environment": "client"
-		}
+		"offline-player-cache.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.15.11",
@@ -47,10 +29,5 @@
 		"java": ">=17",
 		"fabric-api": "*",
 		"fabric-language-kotlin": ">=1.9.24"
-	},
-	"custom": {
-		"cardinal-components": [
-			"offline-player-cache:values"
-		]
 	}
 }

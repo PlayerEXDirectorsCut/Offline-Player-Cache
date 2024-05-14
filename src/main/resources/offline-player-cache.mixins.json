@@ -3,7 +3,7 @@
 	"package": "com.bibireden.opc.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-        "ServerInitMixin"
+		
 	],
 	"injectors": {
 		"defaultRequire": 1

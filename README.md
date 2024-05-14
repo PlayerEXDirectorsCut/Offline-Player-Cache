@@ -1,5 +1,8 @@
-<img src="img/logo.png" alt="Offline Player Cache" />
-<hr />
+# Offline Player Cache
+
+## Notice
+
+Readme is in-progress as we stabilize our first versions of the OfflinePlayerCache.
 
 ### What is Offline Player Cache?
 

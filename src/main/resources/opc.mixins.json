@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.bibireden.opc.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "CommandManagerMixin",
+    "LevelPropertiesMixin",
+    "PlayerManagerMixin",
+    "UnmodifiableLevelPropertiesMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

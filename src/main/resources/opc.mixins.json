@@ -4,9 +4,7 @@
   "package": "com.bibireden.opc.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "CommandManagerMixin",
     "LevelPropertiesMixin",
-    "PlayerManagerMixin",
     "UnmodifiableLevelPropertiesMixin"
   ],
   "injectors": {

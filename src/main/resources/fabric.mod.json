@@ -18,7 +18,14 @@
   "icon": "assets/opc/icon.png",
 
   "environment": "*",
-  "entrypoints": { "main": [] },
+  "entrypoints": {
+    "main": [
+      {
+        "value": "com.bibireden.opc.OfflinePlayerCacheInitializer",
+        "adapter": "kotlin"
+      }
+    ]
+  },
 
   "mixins": [ "opc.mixins.json" ],
 

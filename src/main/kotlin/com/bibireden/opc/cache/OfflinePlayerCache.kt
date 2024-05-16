@@ -24,7 +24,7 @@ internal class OfflinePlayerCache internal constructor(
         /** Registers internally into the cache a `CachedPlayerKey`. */
         @Suppress("UNCHECKED_CAST")
         fun <V>register(key: CachedPlayerKey<V>): CachedPlayerKey<V> {
-            return cacheKeys.computeIfAbsent(key.id()) { key } as CachedPlayerKey<V>
+            return cacheKeys.computeIfAbsent(key.id) { key } as CachedPlayerKey<V>
         }
 
         /** Gets a set of registered keys. */
@@ -113,7 +113,7 @@ internal class OfflinePlayerCache internal constructor(
             for (key in data.keys) {
                 val innerEntry = NbtCompound()
                 key.writeToNbt(innerEntry, data[key])
-                keys.put(key.id().toString(), innerEntry)
+                keys.put(key.toString(), innerEntry)
             }
 
             entry.put(Keys.KEYS, keys)
@@ -173,7 +173,7 @@ internal class OfflinePlayerCache internal constructor(
      * This could fail if the UUID is not in the cache, or the key removed is not present in the cache.
      */
     fun unCache(uuid: UUID, key: CachedPlayerKey<*>): Boolean {
-        if (cacheKeys.containsKey(key.id())) return false
+        if (cacheKeys.containsKey(key.id)) return false
 
         val value = this.cache[uuid] ?: return false
 

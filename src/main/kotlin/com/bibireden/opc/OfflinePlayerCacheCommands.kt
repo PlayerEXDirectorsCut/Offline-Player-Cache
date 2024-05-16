@@ -6,7 +6,6 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
-import com.mojang.datafixers.util.Either
 import net.minecraft.command.CommandSource
 import net.minecraft.command.argument.IdentifierArgumentType
 import net.minecraft.command.argument.UuidArgumentType
@@ -124,7 +123,7 @@ internal object OfflinePlayerCacheCommands {
         } ?: return -1
 
         values.forEach { (key, value) ->
-            context.source.sendFeedback({Text.literal( "$id -> ${key.id()} = $value").formatted(Formatting.GRAY)}, false);
+            context.source.sendFeedback({Text.literal( "$id -> ${key.id} = $value").formatted(Formatting.GRAY)}, false);
         }
 
 		return 1;

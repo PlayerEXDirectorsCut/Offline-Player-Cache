@@ -11,18 +11,20 @@ import net.minecraft.util.Identifier
  * @author bibi-reden, DataEncoded
  * @see OfflinePlayerCacheAPI
  */
-interface CachedPlayerKey<V> {
+abstract class CachedPlayerKey<V>(
+    /** The key of the value. This would be used in the form `modid:<path>`. */
+    val id: Identifier
+) {
     /**
      * Used to get the cached value from the player.
      * */
-    fun get(player: ServerPlayerEntity): V
+    abstract fun get(player: ServerPlayerEntity): V
 
     /** Reads a value from a nbt. */
-    fun readFromNbt(tag: NbtCompound): V
+    abstract fun readFromNbt(tag: NbtCompound): V
 
     /** Writes a value to a nbt. */
-    fun writeToNbt(tag: NbtCompound, value: Any?)
+    abstract fun writeToNbt(tag: NbtCompound, value: Any?)
 
-    /** The key of the value. This would be used in the form `modid:<path>`. */
-    fun id(): Identifier
+    override fun toString(): String = this.id.toString()
 }

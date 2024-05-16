@@ -6,10 +6,9 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
 
-class LevelKey : CachedPlayerKey<Int> {
-    private val id: Identifier = Identifier(MOD_ID, "test-level-value")
-
+class LevelKey : CachedPlayerKey<Int>(Identifier(MOD_ID, "test-level-value-kotlin")) {
     override fun get(player: ServerPlayerEntity): Int {
+        // this would be up to the end user's interpretation, so for now, anything will suffice.
         return 69
     }
 
@@ -20,6 +19,4 @@ class LevelKey : CachedPlayerKey<Int> {
     override fun writeToNbt(tag: NbtCompound, value: Any?) {
         if (value is Int) tag.putInt(id.path, value)
     }
-
-    override fun id(): Identifier = this.id
 }

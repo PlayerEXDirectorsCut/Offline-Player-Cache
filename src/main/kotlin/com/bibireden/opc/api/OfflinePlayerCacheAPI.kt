@@ -2,6 +2,7 @@ package com.bibireden.opc.api
 
 import com.bibireden.opc.cache.OfflinePlayerCache
 import net.minecraft.server.MinecraftServer
+import net.minecraft.util.Identifier
 import java.util.UUID
 
 /**
@@ -16,23 +17,32 @@ class OfflinePlayerCacheAPI(private val server: MinecraftServer) {
         const val MOD_ID = "offline-player-cache"
         /** Registers the provided cached value to the server. */
         fun <V>register(key: CachedPlayerKey<V>): CachedPlayerKey<V> = OfflinePlayerCache.register(key)
+
+        /** The current collection of registered keys in the cache. */
+        fun keys(): Set<Identifier> = OfflinePlayerCache.keys()
     }
 
     /** Fetches the last cached value if offline, otherwise will fetch the current value from the player. */
     fun <V>get(uuid: UUID, key: CachedPlayerKey<V>): V? = OfflinePlayerCache.get(this.server)?.get(server, uuid, key)
 
     /** Fetches the last cached value if offline, otherwise will fetch the current value from the player. */
-    fun <V>get(playerName: String, key: CachedPlayerKey<V>): V? = OfflinePlayerCache.get(this.server)?.get(server, playerName, key)
+    fun <V>get(username: String, key: CachedPlayerKey<V>): V? = OfflinePlayerCache.get(this.server)?.get(server, username, key)
 
     /** Returns all offline & online player UUIDs. */
-    fun playerIDs(): Collection<UUID> = OfflinePlayerCache.get(this.server)!!.playerIDs(this.server)
+    fun uuids(): Collection<UUID> = OfflinePlayerCache.get(this.server)?.playerIDs(this.server) ?: emptyList()
 
-    /** Returns all offline & online player names. */
-    fun playerNames(): Collection<String> = OfflinePlayerCache.get(this.server)!!.playerNames(this.server)
+    /** Returns all offline & online **usernames**. */
+    fun usernames(): Collection<String> = OfflinePlayerCache.get(this.server)?.usernames(this.server) ?: emptyList()
 
     /** Checks if the player with the UUID is in the cache or not. */
-    fun isPlayerCached(uuid: UUID): Boolean = OfflinePlayerCache.get(this.server)!!.isPlayerCached(uuid)
+    fun isPlayerCached(uuid: UUID): Boolean = OfflinePlayerCache.get(this.server)?.isPlayerCached(uuid) ?: false
 
     /** Checks if the player with the name is in the cache or not. */
-    fun isPlayerCached(playerName: String): Boolean = OfflinePlayerCache.get(this.server)!!.isPlayerCached(playerName)
+    fun isPlayerCached(username: String): Boolean = OfflinePlayerCache.get(this.server)?.isPlayerCached(username) ?: false
+
+    /** Obtains the cached data relating to the player's `UUID`. */
+    fun getPlayerValues(uuid: UUID): Map<CachedPlayerKey<*>, *>? = OfflinePlayerCache.get(this.server)?.getPlayerCache(uuid)
+
+    /** Obtains the cached data relating to the player's **username**. */
+    fun getPlayerValues(username: String): Map<CachedPlayerKey<*>, *>? = OfflinePlayerCache.get(this.server)?.getPlayerCache(username)
 }

@@ -1,5 +1,5 @@
 package com.bibireden.opc.cache
 
-interface OfflinePlayerCacheData {
+internal interface OfflinePlayerCacheData {
     fun offlinePlayerCache(): OfflinePlayerCache
 }

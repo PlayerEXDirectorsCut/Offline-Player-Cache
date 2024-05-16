@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-// todo: We will access our data from the `ServerWorldProperties` within this mixin.
 @Mixin(UnmodifiableLevelProperties.class)
 abstract class UnmodifiableLevelPropertiesMixin implements OfflinePlayerCacheData {
     @Final

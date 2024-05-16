@@ -4,6 +4,13 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
 
+/**
+ * A key that is meant to be registered into the **`OfflinePlayerCacheAPI`**, and
+ * is extended from to implement values meant to be stored on the server no matter a player's online or offline state.
+ *
+ * @author bibi-reden, DataEncoded
+ * @see OfflinePlayerCacheAPI
+ */
 interface CachedPlayerKey<V> {
     /**
      * Used to get the cached value from the player.

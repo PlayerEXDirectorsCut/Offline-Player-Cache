@@ -10,21 +10,27 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
 import java.util.UUID
 
-/** This is the singleton class that implements the cache. */
-class OfflinePlayerCache(
+/** This is the implementation of the class. */
+internal class OfflinePlayerCache internal constructor(
     private val cache: MutableMap<UUID, MutableMap<CachedPlayerKey<*>, *>> = mutableMapOf(),
-    private val playerNameToUUID: BiMap<String, UUID> = HashBiMap.create()
+    private val usernameToUUID: BiMap<String, UUID> = HashBiMap.create()
 ) {
     companion object {
+        /** Keys that are represented in the `nbt` data. */
+        internal object Keys { const val UUID = "uuid"; const val NAME = "name"; const val KEYS = "keys" }
+
         private val cacheKeys = mutableMapOf<Identifier, CachedPlayerKey<*>>()
 
+        /** Registers internally into the cache a `CachedPlayerKey`. */
         @Suppress("UNCHECKED_CAST")
         fun <V>register(key: CachedPlayerKey<V>): CachedPlayerKey<V> {
             return cacheKeys.computeIfAbsent(key.id()) { key } as CachedPlayerKey<V>
         }
 
+        /** Gets a set of registered keys. */
         fun keys(): Set<Identifier> = cacheKeys.keys
 
+        /** Gets a registered key based on the identifier. */
         fun getKey(id: Identifier): CachedPlayerKey<*>? = cacheKeys[id]
 
         /** Tries to obtain the cache from the `LevelProperties` of the server, and if it is not found, it will be null. */
@@ -34,9 +40,6 @@ class OfflinePlayerCache(
         }
     }
 
-    fun getPlayerCache(uuid: UUID): Map<CachedPlayerKey<*>, *>? = this.cache[uuid]
-    fun getPlayerCache(username: String): Map<CachedPlayerKey<*>, *>? = this.cache[this.playerNameToUUID[username]]
-
     private fun isValidPlayerData(player: ServerPlayerEntity, function: (UUID, String) -> Unit): Boolean {
         val profile = player.gameProfile ?: return false
         if (profile.id == null || profile.name == null) return false
@@ -44,6 +47,10 @@ class OfflinePlayerCache(
         return true
     }
 
+    fun getPlayerCache(uuid: UUID): Map<CachedPlayerKey<*>, *>? = this.cache[uuid]
+    fun getPlayerCache(username: String): Map<CachedPlayerKey<*>, *>? = this.cache[this.usernameToUUID[username]]
+
+    /** This attempts to obtain the value associated with the `key` cache. */
     @Suppress("UNCHECKED_CAST")
     private fun <V>getFromCache(uuid: UUID, key: CachedPlayerKey<V>): V? = this.cache[uuid]?.get(key) as V?
 
@@ -54,11 +61,11 @@ class OfflinePlayerCache(
     }
 
     /** Gets a cached value from a players name and a cached value key. */
-    internal fun <V>get(server: MinecraftServer, playerName: String, key: CachedPlayerKey<V>): V? {
-        if (playerName.isEmpty()) return null
-        val player = server.playerManager.getPlayer(playerName)
+    internal fun <V>get(server: MinecraftServer, username: String, key: CachedPlayerKey<V>): V? {
+        if (username.isEmpty()) return null
+        val player = server.playerManager.getPlayer(username)
         if (player == null) {
-            val uuid = this.playerNameToUUID[playerName]?: return null
+            val uuid = this.usernameToUUID[username]?: return null
             return this.getFromCache(uuid, key)
         }
         return key.get(player)
@@ -66,7 +73,7 @@ class OfflinePlayerCache(
 
     /** Collect all the player ids from the server into a `Set`. */
     fun playerIDs(server: MinecraftServer): Collection<UUID> {
-        val set = HashSet<UUID>(this.playerNameToUUID.values)
+        val set = HashSet<UUID>(this.usernameToUUID.values)
         for (player in server.playerManager.playerList) {
             val uuid = player?.gameProfile?.id ?: continue
             set.add(uuid)
@@ -75,24 +82,24 @@ class OfflinePlayerCache(
     }
 
     /** Attempts to get the player UUID within the cache map based on a name. */
-    fun getUUID(playerName: String) = this.playerNameToUUID[playerName]
+    fun getUUID(username: String) = this.usernameToUUID[username]
 
-    /** Attempts to get the player name within the cache map based on a UUID. */
-    fun getPlayerName(uuid: UUID) = this.playerNameToUUID.inverse()[uuid]
+    /** Attempts to get the **username** within the cache map based on a UUID. */
+    fun getUsername(uuid: UUID) = this.usernameToUUID.inverse()[uuid]
 
-    /** Collects all the player names from the server into a `Set`. */
-    fun playerNames(server: MinecraftServer): Collection<String> {
-        val set = HashSet<String>(this.playerNameToUUID.keys)
+    /** Collects all the **usernames** from the server into a `Set`. */
+    fun usernames(server: MinecraftServer): Collection<String> {
+        val set = this.usernameToUUID.keys.toHashSet()
         for (player in server.playerManager.playerList) {
-            val playerName = player?.gameProfile?.name
-            if (!playerName.isNullOrEmpty()) set.add(playerName)
+            val username = player?.gameProfile?.name
+            if (!username.isNullOrEmpty()) set.add(username)
         }
         return set
     }
 
     fun writeToNbt(): NbtList {
         val list = NbtList()
-        val uuidToPlayerNames = this.playerNameToUUID.inverse()
+        val uuidToUsernames = this.usernameToUUID.inverse()
 
         for (uuid in this.cache.keys) {
             val data = this.cache[uuid] ?: continue
@@ -100,8 +107,8 @@ class OfflinePlayerCache(
             val entry = NbtCompound()
             val keys = NbtCompound()
 
-            entry.putUuid(PlayerCacheKeys.UUID, uuid)
-            entry.putString(PlayerCacheKeys.NAME, uuidToPlayerNames.getOrDefault(uuid, ""))
+            entry.putUuid(Keys.UUID, uuid)
+            entry.putString(Keys.NAME, uuidToUsernames.getOrDefault(uuid, ""))
 
             for (key in data.keys) {
                 val innerEntry = NbtCompound()
@@ -109,7 +116,7 @@ class OfflinePlayerCache(
                 keys.put(key.id().toString(), innerEntry)
             }
 
-            entry.put(PlayerCacheKeys.KEYS, keys)
+            entry.put(Keys.KEYS, keys)
             list.add(entry)
         }
 
@@ -120,13 +127,13 @@ class OfflinePlayerCache(
         if (list.isEmpty()) return
 
         this.cache.clear()
-        this.playerNameToUUID.clear()
+        this.usernameToUUID.clear()
 
         for (index in list.indices) {
             val entry = list.getCompound(index)
-            val keysCompound = entry.getCompound(PlayerCacheKeys.KEYS)
-            val uuid = entry.getUuid(PlayerCacheKeys.UUID)
-            val name = entry.getString(PlayerCacheKeys.NAME)
+            val keysCompound = entry.getCompound(Keys.KEYS)
+            val uuid = entry.getUuid(Keys.UUID)
+            val name = entry.getString(Keys.NAME)
 
             if (name.isEmpty()) continue
 
@@ -139,25 +146,25 @@ class OfflinePlayerCache(
             }
 
             this.cache[uuid] = data
-            this.playerNameToUUID[name] = uuid
+            this.usernameToUUID[name] = uuid
         }
     }
 
     fun isPlayerCached(uuid: UUID) = this.cache.containsKey(uuid)
 
-    fun isPlayerCached(name: String) = this.playerNameToUUID.containsKey(name)
+    fun isPlayerCached(name: String) = this.usernameToUUID.containsKey(name)
 
-    fun cache(player: ServerPlayerEntity): Boolean = this.isValidPlayerData(player) { uuid, playerName ->
+    fun cache(player: ServerPlayerEntity): Boolean = this.isValidPlayerData(player) { uuid, username ->
         val value = mutableMapOf<CachedPlayerKey<*>, Any?>()
         cacheKeys.values.forEach { key -> value[key] = key.get(player) }
         this.cache[uuid] = value
-        this.playerNameToUUID[playerName] = uuid
+        this.usernameToUUID[username] = uuid
     }
 
     /** Un-caches the player based on the provided `ServerPlayerEntity`. */
     fun unCache(player: ServerPlayerEntity) = this.isValidPlayerData(player) { uuid, _ ->
         this.cache.remove(uuid)
-        this.playerNameToUUID.inverse().remove(uuid)
+        this.usernameToUUID.inverse().remove(uuid)
     }
 
     /**
@@ -173,7 +180,7 @@ class OfflinePlayerCache(
         if (value.remove(key) != null) {
             if (value.isEmpty()) {
                 this.cache.remove(uuid)
-                this.playerNameToUUID.inverse().remove(uuid)
+                this.usernameToUUID.inverse().remove(uuid)
             }
             return true
         }
@@ -185,9 +192,9 @@ class OfflinePlayerCache(
      *
      * This could fail if the player name is not in the cache, or the key removed is not present in the cache.
      */
-    fun unCache(playerName: String, key: CachedPlayerKey<*>): Boolean {
-        if (playerName.isEmpty()) return false
-        return this.unCache(this.playerNameToUUID[playerName] ?: return false, key)
+    fun unCache(username: String, key: CachedPlayerKey<*>): Boolean {
+        if (username.isEmpty()) return false
+        return this.unCache(this.usernameToUUID[username] ?: return false, key)
     }
 
 
@@ -198,7 +205,7 @@ class OfflinePlayerCache(
      */
     fun unCache(uuid: UUID): Boolean {
         this.cache.remove(uuid)
-        return this.playerNameToUUID.inverse().remove(uuid) != null
+        return this.usernameToUUID.inverse().remove(uuid) != null
     }
 
     /**
@@ -206,9 +213,9 @@ class OfflinePlayerCache(
      *
      * This could fail if the UUID is not in the cache.
      */
-    fun unCache(playerName: String): Boolean {
-        if (playerName.isEmpty()) return false
-        val uuid = this.playerNameToUUID[playerName] ?: return false
+    fun unCache(username: String): Boolean {
+        if (username.isEmpty()) return false
+        val uuid = this.usernameToUUID[username] ?: return false
         return this.unCache(uuid)
     }
 }

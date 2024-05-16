@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// todo: We need to implement the cache into the `levelNbt`.
 @Mixin(LevelProperties.class)
 abstract class LevelPropertiesMixin implements OfflinePlayerCacheData {
     @Unique

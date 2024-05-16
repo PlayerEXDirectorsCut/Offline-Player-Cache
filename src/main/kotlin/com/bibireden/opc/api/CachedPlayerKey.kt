@@ -15,9 +15,7 @@ abstract class CachedPlayerKey<V>(
     /** The key of the value. This would be used in the form `modid:<path>`. */
     val id: Identifier
 ) {
-    /**
-     * Used to get the cached value from the player.
-     * */
+    /** Used to get the cached value from the player. */
     abstract fun get(player: ServerPlayerEntity): V
 
     /** Reads a value from a nbt. */

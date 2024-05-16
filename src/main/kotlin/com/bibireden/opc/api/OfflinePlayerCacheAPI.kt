@@ -19,14 +19,7 @@ class OfflinePlayerCacheAPI(private val server: MinecraftServer) {
         /**
          * Registers the provided **`CachedPlayerKey`** to the server's cache.
          *
-         * This function should be normally utilized or incorporated into your mods initializer statically.
-         *
-         * ```
-         * // Kotlin Example
-         * object ExampleMod : ModInitializer {
-         *     val exampleKey = OfflinePlayerCacheAPI.register(ExampleKey())
-         * }
-         * ```
+         * This function should be normally utilized or incorporated into your mods initializer statically.x
          */
         fun <V>register(key: CachedPlayerKey<V>): CachedPlayerKey<V> = OfflinePlayerCache.register(key)
 

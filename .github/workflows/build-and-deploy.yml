@@ -41,7 +41,7 @@ jobs:
         if: github.ref == 'refs/heads/${{ env.BRANCH_PREFIX }}'
         id: mod_version
         run: |
-          loader_val=$(grep "loader" gradle.properties | '\n')
+          loader_val=$(grep "loader" gradle.properties | cut -d'=' -f2 | tr -d '\n')
           mod_version_val=$(grep "mod_version" gradle.properties | cut -d'=' -f2 | tr -d '\n')
           echo "mod_version=$mod_version_val-$loader_val" >> $GITHUB_OUTPUT
       - name: get minecraft version

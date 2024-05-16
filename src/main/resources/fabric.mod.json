@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "offline-player-cache",
+  "version": "${version}",
+  "name": "Offline Player Cache: Directors Cut",
+  "description": "A mod meant to cache values on the server while a player is offline.",
+  "authors": [
+    "Bare Minimum Studios",
+    "CleverNucleus (original author)"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/organization/bare-minimum-studios",
+    "sources": "https://github.com/PlayerEXDirectorsCut/Offline-Player-Cache"
+  },
+
+  "license": "MIT",
+  "icon": "assets/opc/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "value": "com.bibireden.opc.OfflinePlayerCacheInitializer",
+        "adapter": "kotlin"
+      }
+    ]
+  },
+
+  "mixins": [ "opc.mixins.json" ],
+
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "fabric-api": ">=0.83.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-language-kotlin": ">=${fabric_kotlin_version}"
+  },
+
+  "custom": {
+    "mc-publish": {
+      "modrinth": "SN6KkKel",
+      "curseforge": 1019391,
+      "loaders": ["fabric", "quilt"]
+    }
+  }
+}

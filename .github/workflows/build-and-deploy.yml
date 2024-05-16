@@ -1,9 +1,8 @@
 name: Build and Deploy
 on:
   push:
-    branches:
-      - "*" # todo: We will ensure that when there is a push to the branch, we will automatically publish. Safeguards need to be added on PR's/pushes. I'll eventually look for a better way soon.
-
+    branches-ignore:
+      - main
 jobs:
   build-and-deploy:
     env:
@@ -49,6 +48,12 @@ jobs:
         run: |
           minecraft_version_val=$(grep "mod_version" gradle.properties | cut -d'+' -f2 | tr -d '\n')
           echo "minecraft_version=$minecraft_version_val" >> $GITHUB_OUTPUT
+      - name: get loader
+        if: github.ref == 'refs/heads/${{ env.BRANCH_PREFIX }}'
+        id: loader
+        run: |
+          loader_val=$(grep "loader" gradle.properties | '\n')
+          echo "loader=$loader_val" >> $GITHUB_OUTPUT
       - name: deploy with mc-publish
         if: github.ref == 'refs/heads/${{ env.BRANCH_PREFIX }}'
         uses: Kir-Antipov/mc-publish@v3.3

@@ -2,7 +2,8 @@ name: Build and Deploy
 on:
   push:
     branches-ignore:
-      - main
+      - master
+
 jobs:
   build-and-deploy:
     env:

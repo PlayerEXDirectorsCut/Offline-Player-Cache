@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "offline-player-cache",
   "version": "${version}",
-
   "name": "Offline Player Cache: Directors Cut",
   "description": "A mod meant to cache values on the server while a player is offline.",
   "authors": [
@@ -30,8 +29,9 @@
   "mixins": [ "opc.mixins.json" ],
 
   "depends": {
-    "fabricloader": ">=${loader_version}",
-    "minecraft": "~${minecraft_version}",
+    "fabricloader": ">=0.14.21",
+    "fabric-api": ">=0.83.0",
+    "minecraft": "~1.20.1",
     "java": ">=17",
     "fabric-language-kotlin": ">=${fabric_kotlin_version}"
   },

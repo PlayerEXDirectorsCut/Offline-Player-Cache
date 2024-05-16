@@ -11,19 +11,19 @@ import net.minecraft.util.Identifier
 import java.util.UUID
 
 /** This is the implementation of the class. */
-internal class OfflinePlayerCache internal constructor(
-    private val cache: MutableMap<UUID, MutableMap<CachedPlayerKey<*>, *>> = mutableMapOf(),
-    private val usernameToUUID: BiMap<String, UUID> = HashBiMap.create()
+class OfflinePlayerCache internal constructor(
+    val cache: MutableMap<UUID, MutableMap<CachedPlayerKey<out Any>, Any>> = mutableMapOf(),
+    val usernameToUUID: BiMap<String, UUID> = HashBiMap.create()
 ) {
     companion object {
         /** Keys that are represented in the `nbt` data. */
         internal object Keys { const val UUID = "uuid"; const val NAME = "name"; const val KEYS = "keys" }
 
-        private val cacheKeys = mutableMapOf<Identifier, CachedPlayerKey<*>>()
+        private val cacheKeys = mutableMapOf<Identifier, CachedPlayerKey<out Any>>()
 
         /** Registers internally into the cache a `CachedPlayerKey`. */
         @Suppress("UNCHECKED_CAST")
-        fun <V>register(key: CachedPlayerKey<V>): CachedPlayerKey<V> {
+        fun <V : Any>register(key: CachedPlayerKey<V>): CachedPlayerKey<V> {
             return cacheKeys.computeIfAbsent(key.id) { key } as CachedPlayerKey<V>
         }
 
@@ -31,13 +31,10 @@ internal class OfflinePlayerCache internal constructor(
         fun keys(): Set<Identifier> = cacheKeys.keys
 
         /** Gets a registered key based on the identifier. */
-        fun getKey(id: Identifier): CachedPlayerKey<*>? = cacheKeys[id]
+        fun getKey(id: Identifier): CachedPlayerKey<out Any>? = cacheKeys[id]
 
         /** Tries to obtain the cache from the `LevelProperties` of the server, and if it is not found, it will be null. */
-        fun get(server: MinecraftServer): OfflinePlayerCache? {
-            val worldProperties = server.overworld.levelProperties
-            return (worldProperties as OfflinePlayerCacheData?)?.offlinePlayerCache()
-        }
+        fun get(server: MinecraftServer): OfflinePlayerCache? = (server.overworld.levelProperties as? OfflinePlayerCacheData)?.offlinePlayerCache()
     }
 
     private fun isValidPlayerData(player: ServerPlayerEntity, function: (UUID, String) -> Unit): Boolean {
@@ -47,21 +44,27 @@ internal class OfflinePlayerCache internal constructor(
         return true
     }
 
-    fun getPlayerCache(uuid: UUID): Map<CachedPlayerKey<*>, *>? = this.cache[uuid]
-    fun getPlayerCache(username: String): Map<CachedPlayerKey<*>, *>? = this.cache[this.usernameToUUID[username]]
+    fun getPlayerValues(server: MinecraftServer, uuid: UUID): Map<CachedPlayerKey<out Any>, Any?> {
+        return this.cache[uuid] ?: cacheKeys.map { (_, key) -> key to this.get(server, uuid, key) }.toMap()
+    }
 
-    /** This attempts to obtain the value associated with the `key` cache. */
-    @Suppress("UNCHECKED_CAST")
-    private fun <V>getFromCache(uuid: UUID, key: CachedPlayerKey<V>): V? = this.cache[uuid]?.get(key) as V?
+    fun getPlayerValues(server: MinecraftServer, username: String): Map<CachedPlayerKey<out Any>, Any?> {
+        return this.cache[this.getUUID(username)] ?: cacheKeys.map { (_, key) -> key to this.get(server, username, key) }.toMap()
+    }
+
+    inline fun <reified V : Any>getFromCache(uuid: UUID, key: CachedPlayerKey<out V>): V? {
+        val obtained = this.cache[uuid]?.get(key)
+        return if (obtained is V) obtained else null
+    }
 
     /** Gets a cached value from a players `UUID` and a cached value key.*/
-    internal fun <V>get(server: MinecraftServer, uuid: UUID, key: CachedPlayerKey<V>): V? {
+    inline fun <reified V : Any>get(server: MinecraftServer, uuid: UUID, key: CachedPlayerKey<out V>): V? {
         val player = server.playerManager.getPlayer(uuid)
         return if (player == null) this.getFromCache(uuid, key) else key.get(player)
     }
 
     /** Gets a cached value from a players name and a cached value key. */
-    internal fun <V>get(server: MinecraftServer, username: String, key: CachedPlayerKey<V>): V? {
+    inline fun <reified V : Any>get(server: MinecraftServer, username: String, key: CachedPlayerKey<out V>): V? {
         if (username.isEmpty()) return null
         val player = server.playerManager.getPlayer(username)
         if (player == null) {
@@ -73,7 +76,7 @@ internal class OfflinePlayerCache internal constructor(
 
     /** Collect all the player ids from the server into a `Set`. */
     fun playerIDs(server: MinecraftServer): Collection<UUID> {
-        val set = HashSet<UUID>(this.usernameToUUID.values)
+        val set = this.usernameToUUID.values.toHashSet()
         for (player in server.playerManager.playerList) {
             val uuid = player?.gameProfile?.id ?: continue
             set.add(uuid)
@@ -82,10 +85,10 @@ internal class OfflinePlayerCache internal constructor(
     }
 
     /** Attempts to get the player UUID within the cache map based on a name. */
-    fun getUUID(username: String) = this.usernameToUUID[username]
+    private fun getUUID(username: String) = this.usernameToUUID[username]
 
     /** Attempts to get the **username** within the cache map based on a UUID. */
-    fun getUsername(uuid: UUID) = this.usernameToUUID.inverse()[uuid]
+    private fun getUsername(uuid: UUID) = this.usernameToUUID.inverse()[uuid]
 
     /** Collects all the **usernames** from the server into a `Set`. */
     fun usernames(server: MinecraftServer): Collection<String> {
@@ -112,7 +115,7 @@ internal class OfflinePlayerCache internal constructor(
 
             for (key in data.keys) {
                 val innerEntry = NbtCompound()
-                key.writeToNbt(innerEntry, data[key])
+                key.writeToNbt(innerEntry, data[key] ?: continue)
                 keys.put(key.toString(), innerEntry)
             }
 
@@ -137,7 +140,7 @@ internal class OfflinePlayerCache internal constructor(
 
             if (name.isEmpty()) continue
 
-            val data = mutableMapOf<CachedPlayerKey<*>, Any>()
+            val data = mutableMapOf<CachedPlayerKey<out Any>, Any>()
 
             for (id in keysCompound.keys) {
                 val key = cacheKeys[Identifier(id)]
@@ -155,8 +158,8 @@ internal class OfflinePlayerCache internal constructor(
     fun isPlayerCached(name: String) = this.usernameToUUID.containsKey(name)
 
     fun cache(player: ServerPlayerEntity): Boolean = this.isValidPlayerData(player) { uuid, username ->
-        val value = mutableMapOf<CachedPlayerKey<*>, Any?>()
-        cacheKeys.values.forEach { key -> value[key] = key.get(player) }
+        val value = mutableMapOf<CachedPlayerKey<out Any>, Any>()
+        cacheKeys.values.forEach { key -> value[key] = key.get(player) ?: return@forEach }
         this.cache[uuid] = value
         this.usernameToUUID[username] = uuid
     }
@@ -172,7 +175,7 @@ internal class OfflinePlayerCache internal constructor(
      *
      * This could fail if the UUID is not in the cache, or the key removed is not present in the cache.
      */
-    fun unCache(uuid: UUID, key: CachedPlayerKey<*>): Boolean {
+    fun unCache(uuid: UUID, key: CachedPlayerKey<out Any>): Boolean {
         if (cacheKeys.containsKey(key.id)) return false
 
         val value = this.cache[uuid] ?: return false
@@ -192,9 +195,9 @@ internal class OfflinePlayerCache internal constructor(
      *
      * This could fail if the player name is not in the cache, or the key removed is not present in the cache.
      */
-    fun unCache(username: String, key: CachedPlayerKey<*>): Boolean {
+    fun unCache(username: String, key: CachedPlayerKey<out Any>): Boolean {
         if (username.isEmpty()) return false
-        return this.unCache(this.usernameToUUID[username] ?: return false, key)
+        return this.unCache(this.getUUID(username) ?: return false, key)
     }
 
 

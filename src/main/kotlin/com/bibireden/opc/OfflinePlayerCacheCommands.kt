@@ -122,10 +122,11 @@ internal object OfflinePlayerCacheCommands {
             is String -> opcApi.getPlayerValues(id)
             is UUID -> opcApi.getPlayerValues(id)
             else -> null;
-        } ?: return -1
+        } ?: return -1;
 
+        context.source.sendFeedback({Text.literal("Values for $id:")}, false)
         values.forEach { (key, value) ->
-            context.source.sendFeedback({Text.literal( "$id -> ${key.id} = $value").formatted(Formatting.GRAY)}, false);
+            context.source.sendFeedback({Text.literal( "${key.id} = $value").formatted(Formatting.WHITE)}, false);
         }
 
 		return 1;
@@ -148,7 +149,7 @@ internal object OfflinePlayerCacheCommands {
             is UUID -> opc.unCache(id, value)
         }
 
-        ctx.source.sendFeedback({ Text.literal("-$id -$identifier").formatted(Formatting.GRAY) }, false)
+        ctx.source.sendFeedback({ Text.literal("$id: un-cached [$identifier]").formatted(Formatting.WHITE) }, false)
 
         return 1
     }
@@ -163,7 +164,7 @@ internal object OfflinePlayerCacheCommands {
             else -> false;
         }
 
-        context.source.sendFeedback({ Text.literal( "-$uuidOrPlayer -*" ).formatted(Formatting.GRAY) }, false)
+        context.source.sendFeedback({ Text.literal( "$uuidOrPlayer: cleared" ).formatted(Formatting.WHITE) }, false)
 
         return if (executed) 1 else -1
     }
@@ -188,7 +189,7 @@ internal object OfflinePlayerCacheCommands {
             else -> null
         }
 
-        ctx.source.sendFeedback({ Text.literal("$id -> $identifier = $value").formatted(Formatting.GRAY)}, false)
+        ctx.source.sendFeedback({ Text.literal("$id -> $identifier = $value").formatted(Formatting.WHITE)}, false)
 
         if (value is Number) {
             return (abs(value.toDouble()) % 16).toInt()

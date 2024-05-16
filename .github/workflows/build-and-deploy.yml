@@ -57,10 +57,12 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           curseforge-dependencies: |
             fabric-api@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
+            fabric-language-kotlin@1.9.5+kotlin.1.8.22(required){modrinth:Ha28R6CL}{curseforge:308769}#(ignore:github)
 
           modrinth-token: "${{ secrets.MODRINTH_TOKEN }}"
           modrinth-dependencies: |
             fabric-api@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
+            fabric-language-kotlin@1.9.5+kotlin.1.8.22(required){modrinth:Ha28R6CL}{curseforge:308769}#(ignore:github)
 
           github-tag: ${{ steps.mod_version.outputs.mod_version }}
           github-token: ${{ secrets.REPOSITORY_TOKEN }}

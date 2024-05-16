@@ -33,7 +33,7 @@
     "fabric-api": ">=0.83.0",
     "minecraft": "~1.20.1",
     "java": ">=17",
-    "fabric-language-kotlin": ">=${fabric_kotlin_version}"
+    "fabric-language-kotlin": ">=1.9.5+kotlin.1.8.22"
   },
 
   "custom": {

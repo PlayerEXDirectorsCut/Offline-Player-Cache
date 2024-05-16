@@ -33,13 +33,13 @@ internal object OfflinePlayerCacheCommands {
         builder.buildFuture()
     }
     private val SUGGEST_UUIDS = SuggestionProvider<ServerCommandSource> { ctx, builder ->
-        OfflinePlayerCacheAPI(ctx.source.server).uuids().forEach { id -> builder.suggest(java.lang.String.valueOf(id)) }
+        OfflinePlayerCacheAPI(ctx.source.server).uuids().forEach { builder.suggest(it.toString()) }
         builder.buildFuture()
     }
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource>) {
         dispatcher.register(CommandManager.literal("opc")
-            .requires { serverCommandSource -> serverCommandSource.hasPermissionLevel(2) }
+            .requires { it.hasPermissionLevel(2) }
             .then(CommandManager.literal("get")
                     .then(CommandManager.literal("name")
                             .then(CommandManager.argument("name", StringArgumentType.string())
@@ -51,11 +51,13 @@ internal object OfflinePlayerCacheCommands {
                             )
                     )
                     .then(CommandManager.literal("uuid")
-                            .then(CommandManager.argument("uuid", StringArgumentType.string())
+                            .then(CommandManager.argument("uuid", UuidArgumentType.uuid())
                                     .suggests(SUGGEST_UUIDS)
                                     .then(CommandManager.argument("key", IdentifierArgumentType.identifier())
                                             .suggests(SUGGEST_KEYS)
-                                            .executes { context -> executeGetKey(context) { ctx -> UuidArgumentType.getUuid(ctx, "uuid") } }
+                                            .executes { context -> executeGetKey(context) {
+                                                ctx -> UuidArgumentType.getUuid(ctx, "uuid") }
+                                            }
                                     )
                             )
                     )
@@ -114,11 +116,11 @@ internal object OfflinePlayerCacheCommands {
     private fun <T> executeListKeys(context: CommandContext<ServerCommandSource>, input: (CommandContext<ServerCommandSource>) -> T): Int {
 		val id = input(context);
 
-		val opc = OfflinePlayerCacheAPI(context.source.server)
+		val opcApi = OfflinePlayerCacheAPI(context.source.server)
 
         val values = when (id) {
-            is String -> opc.getPlayerValues(id)
-            is UUID -> opc.getPlayerValues(id)
+            is String -> opcApi.getPlayerValues(id)
+            is UUID -> opcApi.getPlayerValues(id)
             else -> null;
         } ?: return -1
 
@@ -135,13 +137,11 @@ internal object OfflinePlayerCacheCommands {
         val value = OfflinePlayerCache.getKey(identifier)
 
         if (value == null) {
-            ctx.source.sendFeedback({ Text.literal("$id -> null key").formatted(Formatting.RED) }, false)
+            ctx.source.sendFeedback(nullKeyMessage(id), false)
             return -1
         }
 
-        val server = ctx.source.server
-
-        val opc = OfflinePlayerCache.get(server) ?: return -1
+        val opc = OfflinePlayerCache.get(ctx.source.server) ?: return -1
 
         when (id) {
             is String -> opc.unCache(id, value)

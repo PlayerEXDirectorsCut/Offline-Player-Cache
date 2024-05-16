@@ -113,20 +113,28 @@ internal object OfflinePlayerCacheCommands {
         )
     }
 
-    private fun <T> executeListKeys(context: CommandContext<ServerCommandSource>, input: (CommandContext<ServerCommandSource>) -> T): Int {
-		val id = input(context);
+    private fun <T> executeListKeys(ctx: CommandContext<ServerCommandSource>, input: (CommandContext<ServerCommandSource>) -> T): Int {
+		val id = input(ctx);
 
-		val opcApi = OfflinePlayerCacheAPI(context.source.server)
+		val opcApi = OfflinePlayerCacheAPI(ctx.source.server)
 
-        val values = when (id) {
-            is String -> opcApi.getPlayerValues(id)
-            is UUID -> opcApi.getPlayerValues(id)
+        val (values, otherID) = when (id) {
+            is String -> opcApi.getPlayerCache(id) to OfflinePlayerCache.get(opcApi.server)?.getUUID(opcApi.server, id as String)
+            is UUID -> opcApi.getPlayerCache(id) to OfflinePlayerCache.get(opcApi.server)?.getUsername(opcApi.server, id as UUID)
             else -> null;
         } ?: return -1;
 
-        context.source.sendFeedback({Text.literal("Values for $id:")}, false)
-        values.forEach { (key, value) ->
-            context.source.sendFeedback({Text.literal( "${key.id} = $value").formatted(Formatting.WHITE)}, false);
+        ctx.source.sendFeedback(fetchingMessage(id), false)
+
+        if (values.isNullOrEmpty()) {
+            ctx.source.sendFeedback({Text.literal("No values for: $id@$otherID").formatted(Formatting.GRAY)}, false)
+        }
+        else {
+            ctx.source.sendFeedback({Text.literal("Found: $otherID").formatted(Formatting.GREEN)}, false)
+            ctx.source.sendFeedback({Text.literal("Listing [${values.size}] value(s):").formatted(Formatting.GREEN)}, false)
+            values.forEach { (key, value) ->
+                ctx.source.sendFeedback({Text.literal( "${key.id} = $value").formatted(Formatting.WHITE)}, false);
+            }
         }
 
 		return 1;
@@ -183,13 +191,15 @@ internal object OfflinePlayerCacheCommands {
 
         val api = OfflinePlayerCacheAPI(server)
 
-        val value = when (id) {
-            is String -> api.get(id, key)
-            is UUID -> api.get(id, key)
+        val (value, otherId) = when (id) {
+            is String -> (api.get(id, key) to OfflinePlayerCache.get(api.server)?.getUUID(api.server, id as String))
+            is UUID -> (api.get(id, key) to OfflinePlayerCache.get(api.server)?.getUsername(api.server, id as UUID))
             else -> null
-        }
+        } ?: return -1;
 
-        ctx.source.sendFeedback({ Text.literal("$id -> $identifier = $value").formatted(Formatting.WHITE)}, false)
+        ctx.source.sendFeedback(fetchingMessage(id), false)
+        ctx.source.sendFeedback({Text.literal("Found: $otherId").formatted(Formatting.GREEN)}, false)
+        ctx.source.sendFeedback({ Text.literal("$identifier = $value").formatted(Formatting.WHITE)}, false)
 
         if (value is Number) {
             return (abs(value.toDouble()) % 16).toInt()
@@ -198,5 +208,6 @@ internal object OfflinePlayerCacheCommands {
         return 1
     }
 
+    private fun <T> fetchingMessage(id: T): () -> MutableText = { Text.literal("Fetching: $id").formatted(Formatting.BOLD).formatted(Formatting.GOLD) }
     private fun <T> nullKeyMessage(id: T): () -> MutableText = { Text.literal("$id -> <null_key>").formatted(Formatting.RED) }
 }

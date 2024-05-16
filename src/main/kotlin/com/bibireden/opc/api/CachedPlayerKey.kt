@@ -22,7 +22,7 @@ abstract class CachedPlayerKey<V : Any>(
     abstract fun readFromNbt(tag: NbtCompound): V
 
     /** Writes a value to a nbt. */
-    abstract fun writeToNbt(tag: NbtCompound, value: Any?)
+    abstract fun writeToNbt(tag: NbtCompound, value: Any)
 
     override fun toString(): String = this.id.toString()
 }

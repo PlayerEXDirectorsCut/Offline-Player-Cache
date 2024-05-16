@@ -49,7 +49,7 @@ class OfflinePlayerCache internal constructor(
     }
 
     fun getPlayerValues(server: MinecraftServer, username: String): Map<CachedPlayerKey<out Any>, Any?> {
-        return this.cache[this.getUUID(username)] ?: cacheKeys.map { (_, key) -> key to this.get(server, username, key) }.toMap()
+        return this.cache[this.usernameToUUID[username]] ?: cacheKeys.map { (_, key) -> key to this.get(server, username, key) }.toMap()
     }
 
     inline fun <reified V : Any>getFromCache(uuid: UUID, key: CachedPlayerKey<out V>): V? {
@@ -75,7 +75,7 @@ class OfflinePlayerCache internal constructor(
     }
 
     /** Collect all the player ids from the server into a `Set`. */
-    fun playerIDs(server: MinecraftServer): Collection<UUID> {
+    fun uuids(server: MinecraftServer): Collection<UUID> {
         val set = this.usernameToUUID.values.toHashSet()
         for (player in server.playerManager.playerList) {
             val uuid = player?.gameProfile?.id ?: continue
@@ -84,11 +84,18 @@ class OfflinePlayerCache internal constructor(
         return set
     }
 
-    /** Attempts to get the player UUID within the cache map based on a name. */
-    private fun getUUID(username: String) = this.usernameToUUID[username]
-
+    /** Attempts to get the player UUID within the cache map based on a name. If there is nothing cached, it will fetch from the server. */
+    fun getUUID(server: MinecraftServer, username: String): UUID? {
+        var uuid = this.usernameToUUID[username]
+        if (uuid == null) uuid = server.playerManager.getPlayer(username)?.uuid
+        return uuid
+    }
     /** Attempts to get the **username** within the cache map based on a UUID. */
-    private fun getUsername(uuid: UUID) = this.usernameToUUID.inverse()[uuid]
+    fun getUsername(server: MinecraftServer, uuid: UUID): String? {
+        var username = this.usernameToUUID.inverse()[uuid]
+        if (username == null) username = server.playerManager.getPlayer(uuid)?.name.toString()
+        return username
+    }
 
     /** Collects all the **usernames** from the server into a `Set`. */
     fun usernames(server: MinecraftServer): Collection<String> {
@@ -176,14 +183,13 @@ class OfflinePlayerCache internal constructor(
      * This could fail if the UUID is not in the cache, or the key removed is not present in the cache.
      */
     fun unCache(uuid: UUID, key: CachedPlayerKey<out Any>): Boolean {
-        if (cacheKeys.containsKey(key.id)) return false
+        if (cacheKeys[key.id] == null) return false
 
         val value = this.cache[uuid] ?: return false
 
         if (value.remove(key) != null) {
             if (value.isEmpty()) {
-                this.cache.remove(uuid)
-                this.usernameToUUID.inverse().remove(uuid)
+                this.unCache(uuid)
             }
             return true
         }
@@ -197,7 +203,7 @@ class OfflinePlayerCache internal constructor(
      */
     fun unCache(username: String, key: CachedPlayerKey<out Any>): Boolean {
         if (username.isEmpty()) return false
-        return this.unCache(this.getUUID(username) ?: return false, key)
+        return this.unCache(this.usernameToUUID[username] ?: return false, key)
     }
 
 

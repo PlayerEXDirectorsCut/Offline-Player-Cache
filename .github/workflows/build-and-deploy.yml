@@ -66,10 +66,9 @@ jobs:
 
           github-tag: ${{ steps.mod_version.outputs.mod_version }}
           github-token: ${{ secrets.REPOSITORY_TOKEN }}
-          github-commitish: ${{ steps.minecraft_version.outputs.minecraft_version }}
+          github-commitish: ${{ env.BRANCH_PREFIX }}
 
           version: "${{ steps.outputs.mod_version }}"
-          version-type: beta
           changelog-file: CHANGELOG.md
 
           game-versions: "${{ steps.minecraft_version.outputs.minecraft_version }}"

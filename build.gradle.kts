@@ -6,18 +6,18 @@ plugins {
 }
 
 group = property("maven_group")!!
-version = property("mod_version")!!
+version = "${property("mod_version")!!}-${property("loader")!!}"
 
 repositories {}
 
 dependencies {
-    minecraft("com.mojang:minecraft:${property("minecraft_version")}")
+    minecraft("com.mojang:minecraft:${properties["minecraft_version"]}")
 
-    mappings("net.fabricmc:yarn:${property("yarn_mappings")}:v2")
+    mappings("net.fabricmc:yarn:${properties["yarn_mappings"]}:v2")
 
-    modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
+    modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
+    modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_api_version"]}")
 }
 
 tasks {

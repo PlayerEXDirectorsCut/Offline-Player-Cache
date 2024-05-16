@@ -39,6 +39,7 @@
   "custom": {
     "mc-publish": {
       "modrinth": "SN6KkKel",
+      "curseforge": 1019391,
       "loaders": ["fabric", "quilt"]
     }
   }

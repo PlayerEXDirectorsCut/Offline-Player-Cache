@@ -1,8 +1,8 @@
 name: Build and Deploy
 on:
   push:
-    branches:
-      - "*/" # todo: We will ensure that when there is a push to the branch, we will automatically publish. Safeguards need to be added on PR's/pushes. I'll eventually look for a better way soon.
+    branches-ignore:
+      - master
 
 jobs:
   build-and-deploy:

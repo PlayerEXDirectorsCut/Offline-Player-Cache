@@ -238,12 +238,12 @@ public class LevelKey extends CachedPlayerKey<Integer> {
     }
 
     @Override
-    public @NotNull Integer readFromNbt(NbtCompound tag) {
+    public @NotNull Integer readFromNbt(CompoundTag tag) {
         return tag.getInt("level");
     }
 
     @Override
-    public void writeToNbt(NbtCompound tag, @NotNull Object value) {
+    public void writeToNbt(CompoundTag tag, @NotNull Object value) {
         // Due to some limitations, type checking cannot be provided for the second argument, but you can almost safely guarantee this value will be associated with your type-parameter.
         tag.putInt("level", (Integer) value);
     }

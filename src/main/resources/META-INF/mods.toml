@@ -1,0 +1,36 @@
+# Make sure this is set to "kotlinforforge"
+modLoader = "kotlinforforge"
+# Make sure this is set to the appropriate version range
+loaderVersion = "[3,)" # Require at least 1.14.x
+# License is REQUIRED after 1.16
+license = "MIT"
+
+[[mods]]
+modId = "opc"
+version = "1.0.0+1.20.1"
+displayName = "Offline Player Cache: Directors Cut"
+authors = "Bare Minimum Studios, CleverNucleus (original author)"
+description = '''An API Mod to allow caching player data on the server while the player is offline.'''
+logoFile="opc_icon.png"
+
+[[dependencies.opc]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.opc]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1]"
+ordering = "NONE"
+side = "BOTH"
+
+[modproperties.opc]
+catalogueImageIcon="opc_icon.png"
+
+[mc-publish]
+modrinth = "oLPaySSb"
+curseforge = 1019391
+loaders = ["forge", "neoforge"]

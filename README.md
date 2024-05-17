@@ -12,6 +12,10 @@
 ![java17](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/java17_vector.svg)
 [![curseforge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg)](https://www.curseforge.com/minecraft/mc-mods/opc-directors-cut)
 [![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/mod/opc-directors-cut)
+
+![fabric](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/fabric_vector.svg)
+![quilt](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/quilt_vector.svg)
+![forge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/forge_vector.svg)
 ---
 
 ### Preamble
@@ -117,12 +121,15 @@ A `CachedPlayerKey` has the important role of being a reference to the data you 
 
 In order to utilize this key, you must extend from class itself, and override its abstract methods.
 
-`Identifiers (fabric) or ResourceLocations (forge)` have been elevated to be a must to implement in the base constructor, so you will need to accommodate for this change.
+`Identifiers` or `ResourceLocations` have been elevated to be a must to implement in the base constructor, so you will need to accommodate for this change.
 Creating one of these keys are relatively simple, all you need to write is the following code:
 
 Expect the values that will be written to your key to not be `null`, as this is checked for you before calling.
 
-Here is the implementation (in Kotlin):
+### Fabric
+
+<details><summary>Kotlin</summary>
+  
 ```kotlin
 import com.bibireden.opc.api.CachedPlayerKey
 import net.minecraft.nbt.NbtCompound
@@ -145,8 +152,9 @@ class LevelKey : CachedPlayerKey<Int>(Identifier("your-mod-id", "your-key-path")
     }
 }
 ```
+</details>
 
-<details><summary>Alternatively, if you are using Java for your mod:</summary>
+<details><summary>Java</summary>
 
 ```java
 import com.bibireden.opc.api.CachedPlayerKey;
@@ -181,8 +189,75 @@ public class LevelKey extends CachedPlayerKey<Integer> {
 
 </details>
 
+### Forge
+
+<details><summary>Kotlin</summary>
+  
+```kotlin
+import com.bibireden.opc.api.CachedPlayerKey
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Player
+
+class LevelKey : CachedPlayerKey<String>(ResourceLocation("your-mod-id", "your-key-path")) {
+    override fun get(player: Player): String {
+        // this would be up to the end user's interpretation, so for now, anything will suffice.
+        return "playerex in forge when?"
+    }
+
+    override fun readFromNbt(tag: CompoundTag): String {
+        return tag.getString("message")
+    }
+
+    override fun writeToNbt(tag: CompoundTag, value: Any) {
+        tag.putString("message", value as String)
+    }
+}
+```
+
+</details>
+
+<details><summary>Java</summary>
+
+```java
+import com.bibireden.opc.api.CachedPlayerKey;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+
+public class LevelKey extends CachedPlayerKey<Integer> {
+    public LevelKey() {
+        super(new ResourceLocation("your-mod-id", "your-key-path"));
+    }
+
+    @Override
+    public Integer get(@NotNull Player player) {
+        // this would be up to the end user's interpretation, so for now, anything will suffice.
+        return 404;
+    }
+
+    @Override
+    public @NotNull Integer readFromNbt(NbtCompound tag) {
+        return tag.getInt("level");
+    }
+
+    @Override
+    public void writeToNbt(NbtCompound tag, @NotNull Object value) {
+        // Due to some limitations, type checking cannot be provided for the second argument, but you can almost safely guarantee this value will be associated with your type-parameter.
+        tag.putInt("level", (Integer) value);
+    }
+}
+```
+
+</details>
+
 Registering your key works relatively the same. All you need to do is register the keys you created using **`OfflinePlayerCacheAPI.register`**.
 
 Once your key is registered, you are good to go!
 
 Keys will automatically be managed by the cache, and you should be able to see these keys through the commands we provide.
+
+---
+
+[![discord-plural](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/social/discord-plural_vector.svg)](https://discord.gg/4kTmk8Skzm)

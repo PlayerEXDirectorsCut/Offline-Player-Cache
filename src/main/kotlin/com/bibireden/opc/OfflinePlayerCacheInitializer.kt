@@ -12,7 +12,7 @@ object OfflinePlayerCacheInitializer {
     val LOGGER: Logger = LogManager.getLogger()
 
     init {
-        MinecraftForge.EVENT_BUS.register(OPCEventHandler())
+        MinecraftForge.EVENT_BUS.register(::OPCEventHandler)
 
 //        runForDist(clientTarget = { MOD_BUS.addListener(::onClientSetup) }, serverTarget = { MOD_BUS.addListener(::onServerSetup) })
 

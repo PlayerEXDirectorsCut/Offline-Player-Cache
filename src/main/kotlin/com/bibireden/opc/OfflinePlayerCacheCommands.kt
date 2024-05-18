@@ -39,8 +39,7 @@ internal object OfflinePlayerCacheCommands {
     }
 
     fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
-        dispatcher.register(
-            Commands.literal("opc")
+        dispatcher.register(Commands.literal("opc")
             .requires { it.hasPermission(2) }
             .then(Commands.literal("get")
                     .then(Commands.literal("name")
@@ -118,17 +117,17 @@ internal object OfflinePlayerCacheCommands {
     private fun <T> executeListKeys(ctx: CommandContext<CommandSourceStack>, input: (CommandContext<CommandSourceStack>) -> T): Int {
 		val id = input(ctx);
 
-		val opcApi = OfflinePlayerCacheAPI(ctx.source.server)
+		val api = OfflinePlayerCacheAPI(ctx.source.server)
 
         val (values, otherID) = when (id) {
-            is String -> opcApi.getPlayerCache(id) to OfflinePlayerCache.get(opcApi.server).getUUID(opcApi.server, id as String)
-            is UUID -> opcApi.getPlayerCache(id) to OfflinePlayerCache.get(opcApi.server).getUsername(opcApi.server, id as UUID)
+            is String -> api.getPlayerCache(id) to OfflinePlayerCache.get(api.server).getUUID(api.server, id as String)
+            is UUID -> api.getPlayerCache(id) to OfflinePlayerCache.get(api.server).getUsername(api.server, id as UUID)
             else -> null;
         } ?: return -1;
 
         ctx.source.sendSuccess(fetchingMessage(id), false)
 
-        if (values.isNullOrEmpty()) {
+        if (values.isEmpty()) {
             ctx.source.sendSuccess({Component.literal("No values for: $id@$otherID").withStyle(ChatFormatting.GRAY)}, false)
         }
         else {

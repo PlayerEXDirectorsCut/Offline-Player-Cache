@@ -44,6 +44,7 @@ jobs:
           loader_val=$(grep "loader" gradle.properties | cut -d'=' -f2 | tr -d '\n')
           mod_version_val=$(grep "mod_version" gradle.properties | cut -d'=' -f2 | tr -d '\n')
           echo "mod_version=$mod_version_val-$loader_val" >> $GITHUB_OUTPUT
+          echo "commitish=$mod_version_val/$loader_val" >> $GITHUB_OUTPUT
       - name: get minecraft version
         if: github.ref == 'refs/heads/${{ env.BRANCH_PREFIX }}'
         id: minecraft_version
@@ -55,18 +56,13 @@ jobs:
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          curseforge-dependencies: |
-            kotlinforforge@4.10.0(required){modrinth:ordsPcFz}{curseforge:351264}#(ignore:github)
-
           modrinth-token: "${{ secrets.MODRINTH_TOKEN }}"
-          modrinth-dependencies: |
-            kotlinforforge@4.10.0(required){modrinth:ordsPcFz}{curseforge:351264}#(ignore:github)
 
           github-tag: ${{ steps.mod_version.outputs.mod_version }}
           github-token: ${{ secrets.REPOSITORY_TOKEN }}
-          github-commitish: ${{ env.BRANCH_PREFIX }}
+          github-commitish: ${{ steps.commitish.outputs.commitish }}
 
-          version: "${{ steps.outputs.mod_version }}"
+          version: "${{ steps.mod_version.outputs.mod_version }}"
           changelog-file: CHANGELOG.md
 
           game-versions: "${{ steps.minecraft_version.outputs.minecraft_version }}"

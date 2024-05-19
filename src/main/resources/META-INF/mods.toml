@@ -34,3 +34,6 @@ catalogueImageIcon="opc_icon.png"
 modrinth = "oLPaySSb"
 curseforge = 1019391
 loaders = ["forge", "neoforge"]
+dependencies=[
+    "kotlinforforge@4.10.0(required){modrinth:ordsPcFz}{curseforge:351264}#(ignore:github)"
+]

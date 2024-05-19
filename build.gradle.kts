@@ -9,8 +9,8 @@ plugins {
     id("org.parchmentmc.librarian.forgegradle") version "1+"
 }
 
-group = "com.bibireden.opc"
-version = "1.0.0+1.20.1-forge"
+group = "${properties["group"]}"
+version = "${properties["mod_version"]}-${properties["loader"]}"
 
 repositories {
     // Add KFF Maven repository
@@ -23,14 +23,14 @@ repositories {
 dependencies {
     // FORGE
     implementation("thedarkcolour:kotlinforforge:4.10.0")
-    "minecraft"("net.minecraftforge:forge:1.20.1-47.2.32")
+    "minecraft"("net.minecraftforge:forge:${properties["forge_version"]}")
 }
 
 val Project.minecraft: net.minecraftforge.gradle.common.util.MinecraftExtension
     get() = extensions.getByType()
 
 minecraft.let {
-    it.mappings("parchment", "2023.09.03-1.20.1")
+    it.mappings("${properties["mappings_channel"]}", "${properties["mappings_version"]}")
     it.runs {
         create("client") {
             workingDirectory(project.file("run"))
